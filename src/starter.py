@@ -1,40 +1,85 @@
 from creature import Creature
 import random as rand
 
-rows = 10
-cols = 10
+class World():
 
-world = [["#"] * cols for _ in range(rows)]
+    def __init__(self,rows=10,cols=10,seed=0,view=10):
+        self.rows = rows # is y 
+        self.cols = cols # is x 
+        self.view = view
+        self.world = [["#"] * cols for _ in range(rows)]
+        self.clock = 0
+        self.entities = []
 
-def print_grid(grid):
-	for row in grid:
-		stringified_row = ""
-		for r in row:
-			stringified_row += str(r)
-		print(stringified_row)
+    def print_grid(self):
+        for row in self.world:
+            stringified_row = ""
+            for r in row:
+                stringified_row += str(r)
+            print(stringified_row)
 
-def grid_put(x, y, symbol, grid):
-	if y >= rows or y < 0 or x >= cols or x < 0:
-		print("Invalid value!")
-	else:
-		grid[rows - y - 1][x] = symbol
+    def world_put(self, x, y, symbol):
+        if self.out_of_bounds(x, y):
+            print("Invalid value!")
+        else:
+            self.world[self.rows - y - 1][x] = symbol
 
-def update_position(creature):
-	grid_put(creature.get_prev_position(0),creature.get_prev_position(1),"#",world)
-	grid_put(creature.get_position(0),creature.get_position(1),creature.get_symbol(),world)
+    def world_get(self, x, y):
+        if self.out_of_bounds(x, y):
+            print("Invalid value!")
+        else:
+            return self.world[self.rows - y - 1][x]
 
-def spawn(creature, grid):
-	x = rand.randint(0,rows-1)
-	y = rand.randint(0,cols-1)
-	grid_put(x, y, creature.get_symbol(), world)
-	creature.set_position(x, y)
+    def out_of_bounds(self, x, y):
+        if y >= self.rows or y < 0 or x >= self.cols or x < 0:
+            return True
+        return False
+
+    def update_position(self, creature):
+        self.world_put(creature.get_prev_position(0),creature.get_prev_position(1),"#")
+        self.world_put(creature.get_position(0),creature.get_position(1),creature.get_symbol())
+
+    def spawn(self, creature):
+        x = rand.randint(0,self.rows-1)
+        y = rand.randint(0,self.cols-1)
+        self.world_put(x, y, creature.get_symbol())
+        creature.set_position(x, y)
+        self.entities.append(creature)
+        self.entity_view()
+
+    def entity_view(self):
+        for entity in self.entities:
+            size = entity.get_sight() * 2 + 1
+            ret_value = [[] * size for _ in range(size)]
+            entity_x = entity.get_position(0)
+            entity_y = entity.get_position(1)
+            up_down = [i - 5 for i in range(size - entity.get_sight(),size + entity.get_sight() + 1)]
+            for i in up_down:
+                for j in up_down:
+                    if not self.out_of_bounds(entity_x + j, entity_y - i):
+                        ret_value[i + entity.get_sight()].append(self.world_get(entity_x + j, entity_y - i))
+                    else:
+                        ret_value[i + entity.get_sight()].append('')
+            entity.set_env_view(ret_value)
+
+
+    def tick(self):
+        for entity in self.entities:
+            entity.action()
+        self.clock += 1
+        if self.clock > 100:
+            self.clock = 0
+
 
 c = Creature()
-spawn(c,world)
-print(c.get_position(0),c.get_position(1))
-print_grid(world)
-for i in range(1,9):
-	c.move(i)
-	update_position(c)
-	print_grid(world)
-	print(c.get_position(0),c.get_position(1))
+w = World()
+w.spawn(c)
+w.print_grid()
+print(c)
+print(c.get_env_view())
+
+
+# for _ in range(10):
+#     w.tick()
+# print(c)
+# print(w.clock)
