@@ -1,5 +1,7 @@
 from creature import Creature
 import random as rand
+import time
+import os
 
 class World():
 
@@ -10,6 +12,7 @@ class World():
         self.world = [["#"] * cols for _ in range(rows)]
         self.clock = 0
         self.entities = []
+        self.entities_status = []
 
     def print_grid(self):
         for row in self.world:
@@ -45,6 +48,7 @@ class World():
         self.world_put(x, y, creature.get_symbol())
         creature.set_position(x, y)
         self.entities.append(creature)
+        self.entities_status.append(creature.status)
         self.entity_view()
 
     def entity_view(self):
@@ -64,22 +68,24 @@ class World():
 
 
     def tick(self):
-        for entity in self.entities:
-            entity.action()
+        for i in range(len(self.entities)):
+            self.entities[i].action()
+            self.update_position(self.entities[i])
+            self.entity_view()
+            self.entities_status[i] = self.entities[i].health_check()
         self.clock += 1
-        if self.clock > 100:
-            self.clock = 0
 
 
 c = Creature()
 w = World()
 w.spawn(c)
-w.print_grid()
+for i in range(500):
+    os.system('clear')
+    w.tick()
+    w.print_grid()
+    time.sleep(0.1)
+    if i % 99 == 0:
+        print(c)
+        input("Enter to cont:")
+print(w.clock)
 print(c)
-print(c.get_env_view())
-
-
-# for _ in range(10):
-#     w.tick()
-# print(c)
-# print(w.clock)
