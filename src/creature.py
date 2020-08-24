@@ -1,24 +1,25 @@
 import random as rand
-import string
+import entity
 
-class Creature():
+class Creature(entity.Entity):
 
-    def __init__(self,sight=2,health=10,max_stamina=100,symbol="C"):
+    def __init__(self,sight=2,health=10,max_stamina=100,max_hunger=100,symbol="C"):
+        super().__init__()
         self.sight = sight
         self.health = health
         self.max_stamina = max_stamina
         self.stamina = self.max_stamina
+        self.max_hunger = max_hunger
+        self.hunger = self.max_hunger
         self.age = 0
-        self.x = 0
-        self.y = 0
         self.prev_x = 0
         self.prev_y = 0
         self.symbol = symbol
         self.actions = []
-        self.name = self.get_random_name()
         self.env_view = None
-        self.status = "A"
         self.knockout_timer = int(max_stamina * 0.25)
+        self.inventory = None
+        self.move_status = True
 
     def __repr__(self):
         ret_value = "Name: {}\nPosition: {}\nHealth: {}\nStamina: {}\nStatus: {}\n".format(self.name, [self.x, self.y], self.health, self.stamina, self.status)
@@ -27,51 +28,6 @@ class Creature():
     def __str__(self):
         ret_value = "Name: {}\nPosition: {}\nHealth: {}\nStamina: {}\nStatus: {}\n".format(self.name, [self.x, self.y], self.health, self.stamina, self.status)
         return ret_value
-
-    def get_random_string(self,length=10):
-        letters = string.ascii_lowercase
-        result_str = ''.join(rand.choice(letters) for i in range(length))
-        return result_str
-
-    def get_random_name(self):
-        return rand.choice(open("all.txt").read().split())
-
-    def get_sight(self):
-        return self.sight
-
-    def set_sight(self, sight):
-        self.sight = sight
-
-    def set_env_view(self, env_view):
-        self.env_view = env_view
-
-    def get_env_view(self, x=-1, y=-1):
-        if x == -1 or y == -1:
-            return self.env_view
-        return self.env_view[(2*self.sight) - y][x]
-
-    def get_symbol(self):
-        return self.symbol
-
-    def set_position(self, x, y):
-        self.x = x
-        self.y = y
-
-    def get_position(self, val):
-        if val == 0:
-            return self.x
-        elif val == 1:
-            return self.y
-        else:
-            return "Invalid value"
-
-    def get_prev_position(self, val):
-        if val == 0:
-            return self.prev_x
-        elif val == 1:
-            return self.prev_y
-        else:
-            return "Invalid value"
 
     def legal_moves(self):
         moves = []
@@ -144,6 +100,7 @@ class Creature():
             self.status = "KO"
         elif self.stamina < 0:
             self.status = "KO"
+            self.health -= 1
         else:
             self.status = "A"
         return self.status
