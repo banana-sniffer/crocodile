@@ -8,6 +8,7 @@ class Entity():
         self.status = "A"
         self.internal_clock = 0
         self.name = self.get_random_name()
+        self.env_view = None
 
     def get_random_name(self):
         return rand.choice(open("all.txt").read().split())
@@ -60,3 +61,23 @@ class Entity():
         else:
             self.status = "A"
         return self.status
+
+    def open_spaces(self):
+        spaces = []
+        if self.get_env_view(self.sight, self.sight + 1) == "#":
+            spaces.append(1)
+        if self.get_env_view(self.sight + 1, self.sight + 1) == "#":
+            spaces.append(2)    
+        if self.get_env_view(self.sight + 1, self.sight) == "#":
+            spaces.append(3)
+        if self.get_env_view(self.sight + 1, self.sight - 1) == "#":
+            spaces.append(4)
+        if self.get_env_view(self.sight, self.sight - 1) == "#":
+            spaces.append(5)
+        if self.get_env_view(self.sight - 1, self.sight - 1) == "#":
+            spaces.append(6)
+        if self.get_env_view(self.sight - 1, self.sight) == "#":
+            spaces.append(7)
+        if self.get_env_view(self.sight - 1, self.sight + 1) == "#":
+            spaces.append(8)
+        return spaces

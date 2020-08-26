@@ -16,46 +16,26 @@ class Creature(entity.Entity):
         self.prev_y = 0
         self.symbol = symbol
         self.actions = []
-        self.env_view = None
         self.knockout_timer = int(max_stamina * 0.25)
         self.inventory = None
         self.move_status = True
 
     def __repr__(self):
-        ret_value = "Name: {}\nPosition: {}\nHealth: {}\nStamina: {}\nStatus: {}\n".format(self.name, [self.x, self.y], self.health, self.stamina, self.status)
+        ret_value = "Name: {}\nPosition: {}\nHealth: {}\nStamina: {}\nStatus: {}\nSymbol: {}\n".format(self.name, [self.x, self.y], self.health, self.stamina, self.status, self.symbol)
         return ret_value
 
     def __str__(self):
-        ret_value = "Name: {}\nPosition: {}\nHealth: {}\nStamina: {}\nStatus: {}\n".format(self.name, [self.x, self.y], self.health, self.stamina, self.status)
+        ret_value = "Name: {}\nPosition: {}\nHealth: {}\nStamina: {}\nStatus: {}\nSymbol: {}\n".format(self.name, [self.x, self.y], self.health, self.stamina, self.status, self.symbol)
         return ret_value
 
-    def legal_moves(self):
-        moves = []
-        if self.get_env_view(self.sight, self.sight + 1) == "#":
-            moves.append(1)
-        if self.get_env_view(self.sight + 1, self.sight + 1) == "#":
-            moves.append(2)    
-        if self.get_env_view(self.sight + 1, self.sight) == "#":
-            moves.append(3)
-        if self.get_env_view(self.sight + 1, self.sight - 1) == "#":
-            moves.append(4)
-        if self.get_env_view(self.sight, self.sight - 1) == "#":
-            moves.append(5)
-        if self.get_env_view(self.sight - 1, self.sight - 1) == "#":
-            moves.append(6)
-        if self.get_env_view(self.sight - 1, self.sight) == "#":
-            moves.append(7)
-        if self.get_env_view(self.sight - 1, self.sight + 1) == "#":
-            moves.append(8)
-        return moves
 
-    def action(self):
+    def action(self, world):
         if self.status == "KO" and self.stamina < 25:
             self.rest()
         else:
             action = rand.randint(0,100)
             if action < 95:
-                move_cmd = rand.choice(self.legal_moves())
+                move_cmd = rand.choice(self.open_spaces())
                 self.move(move_cmd)
             else:
                 self.rest()
@@ -92,19 +72,6 @@ class Creature(entity.Entity):
             print("Invalid command")
         self.stamina -= 1
         return "Moving"
-
-    def health_check(self):
-        if self.health < 0:
-            self.status = "D"
-        elif self.status == "KO" and self.stamina < 25:
-            self.status = "KO"
-        elif self.stamina < 0:
-            self.status = "KO"
-            self.health -= 1
-        else:
-            self.status = "A"
-        return self.status
-
 
 
 

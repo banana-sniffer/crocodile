@@ -33,6 +33,14 @@ class World():
         else:
             self.world[self.rows - y - 1][x] = symbol
 
+    def world_put_new(self, x, y, entity):
+        if self.out_of_bounds(x, y):
+            print("Invalid value!")
+        else:
+            self.world[self.rows - y - 1][x] = entity.symbol
+            self.entities.append(entity)
+            self.entities_status.append(entity.status)
+
     def world_get(self, x, y):
         if self.out_of_bounds(x, y):
             print("Invalid value!")
@@ -79,11 +87,19 @@ class World():
 
 
     def tick(self):
-        for i in range(len(self.entities)):
-            self.entities[i].action()
+        for i in range(len(self.entities)-1,-1,-1):
+            self.entities[i].action(self)
             self.update_position(self.entities[i])
             self.entity_view()
+            # There is no health check right now for the fruit
             self.entities_status[i] = self.entities[i].health_check()
+            if self.entities_status[i] == "D":
+                self.entities_status.remove(i)
+                self.entities.remove(i)
         self.clock += 1
+
+    def all_entity_check(self):
+        for e in self.entities:
+            print(e)
 
 
